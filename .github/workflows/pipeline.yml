@@ -14,6 +14,10 @@ on:
 jobs:
   test_train:
     runs-on: ubuntu-latest
+    env:
+      MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+      MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+      MLFLOW_TRACKING_URL:  ${{ secrets.MLFLOW_TRACKING_URL }}
     steps:
       - uses: actions/checkout@v1
         with:
@@ -56,6 +60,10 @@ jobs:
 
   train_pipeline:
       runs-on: ubuntu-latest
+      env:
+        MLFLOW_TRACKING_USERNAME: ${{ secrets.MLFLOW_TRACKING_USERNAME }}
+        MLFLOW_TRACKING_PASSWORD: ${{ secrets.MLFLOW_TRACKING_PASSWORD }}
+        MLFLOW_TRACKING_URL:  ${{ secrets.MLFLOW_TRACKING_URL }}
       needs: [test_train]
       steps:
           - uses: actions/checkout@v1
@@ -76,16 +84,16 @@ jobs:
             run: |
               python train.py 
 
-  build_image:
-    runs-on: ubuntu-latest
-    needs: [train_pipeline]
-    steps:
-      - uses: actions/checkout@v2
-      - name: docker login
-        run: |
-          docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_USER}}/${{secrets.DOCKER_IMAGE_NAME}}
-
-      - name: Docker Push
-        run: docker push ${{secrets.DOCKER_USER}}/${{secrets.DOCKER_IMAGE_NAME}}
+#  build_image:
+#    runs-on: ubuntu-latest
+#    needs: [train_pipeline]
+#    steps:
+#      - uses: actions/checkout@v2
+#      - name: docker login
+#        run: |
+#          docker login -u ${{secrets.DOCKER_USER}} -p ${{secrets.DOCKER_PASSWORD}}
+#      - name: Build the Docker image
+#        run: docker build . --file Dockerfile --tag ${{secrets.DOCKER_USER}}/${{secrets.DOCKER_IMAGE_NAME}}
+#
+#      - name: Docker Push
+#        run: docker push ${{secrets.DOCKER_USER}}/${{secrets.DOCKER_IMAGE_NAME}}
